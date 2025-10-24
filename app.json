@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "smartLamp",
-    "slug": "smartLamp",
+    "slug": "smart-lamp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -23,6 +23,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "576ab861-1125-402e-9483-a58d56d95314"
+      }
+    },
+    "owner": "bmungal"
   }
 }

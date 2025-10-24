@@ -1,0 +1,95 @@
+import React, { useState } from "react";
+import { View, Button, StyleSheet, Text, Alert } from "react-native";
+import { callService } from "./lib/ha";
+
+const TOPIC = "led/control"; // <- same topic Pi B has, sort of like action for pi that we use
+
+//LightControlScreen.js (just noted to keep track of code)
+export default function LightControlScreen({ route }) {
+  const [busy, setBusy] = useState(false);
+  const preset = route.params?.preset;
+
+  const sendToHA = async (payload) => {
+    // TODO: replace with your HA endpoint and token
+    // Example shape (keep for tomorrow):
+    // const url = 'http://<HA_HOST>:8123/api/services/light/turn_on';
+    // const token = 'LONG_LIVED_ACCESS_TOKEN';
+    // const body = { entity_id: 'light.your_bulb', ...payload };
+
+    try {
+      setBusy(true);
+      // await fetch(url, {
+      //   method: 'POST',
+      //   headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(body)
+      // });
+
+      // For now, just simulate:
+      // await new Promise((r) => setTimeout(r, 400));
+      // Alert.alert("Sent to HA", JSON.stringify(payload));
+      // Call Home Assistant's MQTT publish service
+      await callService("mqtt", "publish", {
+        topic: TOPIC,
+        payload: payload, // simple string like "ON" or "OFF"
+        qos: 1,
+        retain: true,
+      });
+
+      Alert.alert("Sent to HA", payload);
+    } catch (e) {
+      Alert.alert("HA Error", e?.message ?? "Unknown error");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const chooseColor = (hex) => sendToHA({ color: hex, preset });
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>
+        Light Control {preset ? `(${preset})` : ""}
+      </Text>
+        <Button
+              title="Turn ON"
+              onPress={() => sendToHA("ON")}
+              disabled={busy} />
+      <Button
+        title="Turn OFF"
+        onPress={() => sendToHA("OFF")}
+        disabled={busy}
+      />
+
+      <Button
+        title="Blue"
+        onPress={() => chooseColor("#4A90E2")}
+        disabled={busy}
+      />
+      <Button
+        title="Purple"
+        onPress={() => chooseColor("#A020F0")}
+        disabled={busy}
+      />
+      <Button
+        title="Red"
+        onPress={() => chooseColor("#E53935")}
+        disabled={busy}
+      />
+      <Button
+        title="Warm White"
+        onPress={() => chooseColor("#FFD7A3")}
+        disabled={busy}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, gap: 12, padding: 20, justifyContent: "center" },
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+});
