@@ -294,7 +294,7 @@ export default function LightControlScreen({ route }) {
           onPress={() => setCustomOpen(true)}
           style={[styles.swatch, styles.customSwatch]}
         >
-          <Text style={styles.customText}>Custom</Text>
+          <Text style={styles.customText}>RGB</Text>
         </Pressable>
       </View>
 
@@ -388,7 +388,8 @@ export default function LightControlScreen({ route }) {
                 styles.preview,
                 {
                   alignSelf: "center",
-                  marginTop: 12,
+                  marginTop: 10,
+                  // marginTop:12,
                   width: 160,
                   height: 40,
                   borderRadius: 8,

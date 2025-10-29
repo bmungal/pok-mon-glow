@@ -29,6 +29,12 @@
         "projectId": "576ab861-1125-402e-9483-a58d56d95314"
       }
     },
-    "owner": "bmungal"
+    "owner": "bmungal",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/576ab861-1125-402e-9483-a58d56d95314"
+    }
   }
 }
