@@ -7,15 +7,19 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import ModeScheduleScreen from "./screens/ModeScheduleScreen";
+
 
 import HomeScreen from './screens/HomeScreen';
 import LightControlScreen from './screens/LightControlScreen';
+import SettingsScreen from './screens/SettingScreen';
 //globals
 //globalThis.__HA_URL__   = 'http://homeassistant.local:8123'; // or http://<LAN-IP>:8123
 //globalThis.__HA_URL__ = "http://192.168.1.104:8123"; Nicks for testing
 // globalThis.__HA_URL__ = "http://192.168.1.239:8123";  // HA_SETUP IP
 // globalThis.__HA_URL__ = "http://10.169.235.237:8123"
-globalThis.__HA_URL__ = "http://homeassistant.local";
+globalThis.__HA_URL__ = "http://homeassistant.local:8123";
 
 globalThis.__HA_TOKEN__ =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkNWQxNTE2NDQ4OTQ0MDI4YjIyM2M3MWJhMTU2ZWZmNyIsImlhdCI6MTc1NzU1NDUyMCwiZXhwIjoyMDcyOTE0NTIwfQ.9Rf_J74l6gCTQCZ7NOy8aIuoo2fyYZjMBREQKYxQFmk";
@@ -24,13 +28,35 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home"
-        screenOptions={{ headerTitleAlign: 'center' }}>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="LightControl" component={LightControlScreen} options={{ title: 'Smart Lamp' }} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{ headerTitleAlign: "center" }}
+        >
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ title: "Smart Lamp" }}
+          />
+          <Stack.Screen
+            name="LightControl"
+            component={LightControlScreen}
+            options={{ title: "Smart Lamp" }}
+          />
+          <Stack.Screen
+            name="Settings"
+            component={SettingsScreen}
+            options={{ title: "Settings" }}
+          />
+          <Stack.Screen
+            name="ModeSchedule"
+            component={ModeScheduleScreen}
+            options={{ title: "Mode Scheduling" }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
 

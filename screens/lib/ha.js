@@ -46,7 +46,8 @@ export async function pingHA({ url, token } = {}) {
       headers: { Authorization: `Bearer ${bearer}` }
     });
   
-    const text = await res.text();
+  const text = await res.text();
+  console.log(text)
     console.log("[HA] ping: response", res.status, text);
   
     return { ok: res.ok, status: res.status, body: text };
