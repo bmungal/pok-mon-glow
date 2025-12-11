@@ -203,7 +203,7 @@ const DEFAULT_TIME_PRESETS = {
 };
 
 // Home Assistant light entity to control
-const LAMP_ENTITY_ID = "light.smart_lamp"; // <-- change to light entity_id
+const LAMP_ENTITY_ID = "light.pokemon_glow"; // <-- change to light entity_id
 
 // "HH:MM" (24h) → "h:MM AM/PM"
 const format12h = (hhmm) => {
@@ -266,65 +266,159 @@ export default function LightControlScreen({ route, navigation }) {
   const [selected, setSelected] = useState(presets[0]);
 
   // Load saved user presets
-  React.useEffect(() => {
-    if (payload) return;
-    (async () => {
-      try {
-        const savedMode = await AsyncStorage.getItem(STORAGE_KEYS.MODE);
-        if (savedMode) setMode(savedMode);
+  // React.useEffect(() => {
+  //   if (payload) return;
+  //   (async () => {
+  //     try {
+  //       const savedMode = await AsyncStorage.getItem(STORAGE_KEYS.MODE);
+  //       if (savedMode) setMode(savedMode);
 
-        // presets
-        const json = await AsyncStorage.getItem(STORAGE_KEYS.PRESETS);
-        if (json) {
+  //       // presets
+  //       const json = await AsyncStorage.getItem(STORAGE_KEYS.PRESETS);
+  //       if (json) {
+  //         const parsed = JSON.parse(json);
+  //         if (parsed && typeof parsed === "object") {
+  //           setPresetsByMode((prev) => ({ ...prev, ...parsed }));
+  //         }
+  //       }
+
+  //       // schedules
+  //       const schedJson = await AsyncStorage.getItem(STORAGE_KEYS.SCHEDULES);
+  //       if (schedJson) {
+  //         const parsed = JSON.parse(schedJson);
+  //         if (parsed && typeof parsed === "object") {
+  //           setModeSchedules((prev) => ({ ...prev, ...parsed }));
+  //         }
+  //       }
+
+  //       // default time presets
+  //       const defaultsJson = await AsyncStorage.getItem(
+  //         STORAGE_KEYS.SCHEDULE_DEFAULTS
+  //       );
+  //       if (defaultsJson) {
+  //         const parsed = JSON.parse(defaultsJson);
+  //         if (parsed && typeof parsed === "object") {
+  //           setScheduleDefaults((prev) => ({ ...prev, ...parsed }));
+  //         }
+  //       }
+  //     } catch (e) {
+  //       console.warn("Failed to load presets/mode/schedules", e);
+  //     }
+  //   })();
+  // }, []);
+
+React.useEffect(() => {
+  if (payload) return;
+  (async () => {
+    try {
+      const savedMode = await AsyncStorage.getItem(STORAGE_KEYS.MODE);
+      if (savedMode) setMode(savedMode);
+
+      // presets
+      const json = await AsyncStorage.getItem(STORAGE_KEYS.PRESETS);
+      if (json && json !== "undefined") {
+        try {
           const parsed = JSON.parse(json);
           if (parsed && typeof parsed === "object") {
             setPresetsByMode((prev) => ({ ...prev, ...parsed }));
           }
+        } catch (e) {
+          console.warn("Bad PRESETS JSON, clearing", e);
+          await AsyncStorage.removeItem(STORAGE_KEYS.PRESETS);
         }
+      }
 
-        // schedules
-        const schedJson = await AsyncStorage.getItem(STORAGE_KEYS.SCHEDULES);
-        if (schedJson) {
+      // schedules
+      const schedJson = await AsyncStorage.getItem(STORAGE_KEYS.SCHEDULES);
+      if (schedJson && schedJson !== "undefined") {
+        try {
           const parsed = JSON.parse(schedJson);
           if (parsed && typeof parsed === "object") {
             setModeSchedules((prev) => ({ ...prev, ...parsed }));
           }
+        } catch (e) {
+          console.warn("Bad SCHEDULES JSON, clearing", e);
+          await AsyncStorage.removeItem(STORAGE_KEYS.SCHEDULES);
         }
+      }
 
-        // default time presets
-        const defaultsJson = await AsyncStorage.getItem(
-          STORAGE_KEYS.SCHEDULE_DEFAULTS
-        );
-        if (defaultsJson) {
+      // default time presets
+      const defaultsJson = await AsyncStorage.getItem(
+        STORAGE_KEYS.SCHEDULE_DEFAULTS
+      );
+      if (defaultsJson && defaultsJson !== "undefined") {
+        try {
           const parsed = JSON.parse(defaultsJson);
           if (parsed && typeof parsed === "object") {
             setScheduleDefaults((prev) => ({ ...prev, ...parsed }));
           }
+        } catch (e) {
+          console.warn("Bad SCHEDULE_DEFAULTS JSON, clearing", e);
+          await AsyncStorage.removeItem(STORAGE_KEYS.SCHEDULE_DEFAULTS);
         }
-      } catch (e) {
-        console.warn("Failed to load presets/mode/schedules", e);
       }
-    })();
-  }, []);
+    } catch (e) {
+      console.warn("Failed to load presets/mode/schedules", e);
+    }
+  })();
+}, []);
+
+  // React.useEffect(() => {
+  //   const unsub = navigation.addListener("focus", async () => {
+  //     try {
+  //       const schedJson = await AsyncStorage.getItem(STORAGE_KEYS.SCHEDULES);
+  //       if (schedJson) {
+  //         const parsed = JSON.parse(schedJson);
+  //         if (parsed && typeof parsed === "object") {
+  //           setModeSchedules((prev) => ({ ...prev, ...parsed }));
+  //         }
+  //       }
+
+  //       const defaultsJson = await AsyncStorage.getItem(
+  //         STORAGE_KEYS.SCHEDULE_DEFAULTS
+  //       );
+  //       if (defaultsJson) {
+  //         const parsed = JSON.parse(defaultsJson);
+  //         if (parsed && typeof parsed === "object") {
+  //           setScheduleDefaults((prev) => ({ ...prev, ...parsed }));
+  //         }
+  //       }
+  //     } catch (e) {
+  //       console.warn("Failed to reload schedules", e);
+  //     }
+  //   });
+
+  //   return unsub;
+  // }, [navigation]);
 
   React.useEffect(() => {
     const unsub = navigation.addListener("focus", async () => {
       try {
         const schedJson = await AsyncStorage.getItem(STORAGE_KEYS.SCHEDULES);
-        if (schedJson) {
-          const parsed = JSON.parse(schedJson);
-          if (parsed && typeof parsed === "object") {
-            setModeSchedules((prev) => ({ ...prev, ...parsed }));
+        if (schedJson && schedJson !== "undefined") {
+          try {
+            const parsed = JSON.parse(schedJson);
+            if (parsed && typeof parsed === "object") {
+              setModeSchedules((prev) => ({ ...prev, ...parsed }));
+            }
+          } catch (e) {
+            console.warn("Bad SCHEDULES JSON on reload, clearing", e);
+            await AsyncStorage.removeItem(STORAGE_KEYS.SCHEDULES);
           }
         }
 
         const defaultsJson = await AsyncStorage.getItem(
           STORAGE_KEYS.SCHEDULE_DEFAULTS
         );
-        if (defaultsJson) {
-          const parsed = JSON.parse(defaultsJson);
-          if (parsed && typeof parsed === "object") {
-            setScheduleDefaults((prev) => ({ ...prev, ...parsed }));
+        if (defaultsJson && defaultsJson !== "undefined") {
+          try {
+            const parsed = JSON.parse(defaultsJson);
+            if (parsed && typeof parsed === "object") {
+              setScheduleDefaults((prev) => ({ ...prev, ...parsed }));
+            }
+          } catch (e) {
+            console.warn("Bad SCHEDULE_DEFAULTS JSON on reload, clearing", e);
+            await AsyncStorage.removeItem(STORAGE_KEYS.SCHEDULE_DEFAULTS);
           }
         }
       } catch (e) {
@@ -557,7 +651,7 @@ const resetCurrentModeToDefaults = async () => {
   //more send to HA helper functions.. need to make automations
   const sendCurrentScheduleToHA = async () => {
     const entityMap = {
-      "Wake Up": ["input_datetime.wake_start", "input_datetime.wake_end"],
+      "Wake Up": ["input_datetime.wake_up_start", "input_datetime.wake_up_end"],
       Focus: ["input_datetime.focus_start", "input_datetime.focus_end"],
       Calm: ["input_datetime.calm_start", "input_datetime.calm_end"],
       "Wind Down": [

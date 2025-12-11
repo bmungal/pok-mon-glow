@@ -200,27 +200,68 @@ export default function ModeScheduleScreen({ navigation }) {
   );
 
   // Load saved schedules
-  useEffect(() => {
-    (async () => {
-      try {
-        const schedJson = await AsyncStorage.getItem(STORAGE_KEYS.SCHEDULES);
-        if (schedJson) {
-          setSched((prev) => ({ ...prev, ...JSON.parse(schedJson) }));
-        }
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const schedJson = await AsyncStorage.getItem(STORAGE_KEYS.SCHEDULES);
+  //       if (schedJson) {
+  //         setSched((prev) => ({ ...prev, ...JSON.parse(schedJson) }));
+  //       }
 
-        const defaultsJson = await AsyncStorage.getItem(
-          STORAGE_KEYS.SCHEDULE_DEFAULTS
-        );
-        if (defaultsJson) {
+  //       const defaultsJson = await AsyncStorage.getItem(
+  //         STORAGE_KEYS.SCHEDULE_DEFAULTS
+  //       );
+  //       if (defaultsJson) {
+  //         setTimeDefaults((prev) => ({
+  //           ...prev,
+  //           ...JSON.parse(defaultsJson),
+  //         }));
+  //       }
+  //     } catch {}
+  //   })();
+  // }, []);
+
+useEffect(() => {
+  (async () => {
+    try {
+      // --- SCHEDULES ---
+      const schedJson = await AsyncStorage.getItem(STORAGE_KEYS.SCHEDULES);
+
+      if (schedJson && schedJson !== "undefined") {
+        try {
+          const parsed = JSON.parse(schedJson);
+          setSched((prev) => ({ ...prev, ...parsed }));
+        } catch (e) {
+          console.warn("Bad schedule JSON, clearing STORAGE_KEYS.SCHEDULES", e);
+          await AsyncStorage.removeItem(STORAGE_KEYS.SCHEDULES);
+        }
+      }
+
+      // --- DEFAULT PRESETS ---
+      const defaultsJson = await AsyncStorage.getItem(
+        STORAGE_KEYS.SCHEDULE_DEFAULTS
+      );
+
+      if (defaultsJson && defaultsJson !== "undefined") {
+        try {
+          const parsedDefaults = JSON.parse(defaultsJson);
           setTimeDefaults((prev) => ({
             ...prev,
-            ...JSON.parse(defaultsJson),
+            ...parsedDefaults,
           }));
+        } catch (e) {
+          console.warn(
+            "Bad defaults JSON, clearing STORAGE_KEYS.SCHEDULE_DEFAULTS",
+            e
+          );
+          await AsyncStorage.removeItem(STORAGE_KEYS.SCHEDULE_DEFAULTS);
         }
-      } catch {}
-    })();
-  }, []);
-
+      }
+    } catch (e) {
+      console.warn("Failed to reload schedules", e);
+    }
+  })();
+}, []);
 
 
   const saveAll = async () => {
@@ -447,20 +488,21 @@ const handleChangeDefault = async (mode) => {
           <View style={s.timeRow}>
             <Text style={s.timeLabel}>End</Text>
             <View style={s.timeInputWrap}>
-              <TextInput
-                value={
-                  draftTimes[m]?.end ?? format12(sched[m].end).slice(0, -3)
-                }
-                onChangeText={(txt) => {
-                  setDraftTimes((prev) => ({
-                    ...prev,
-                    [m]: { ...(prev[m] || {}), end: txt },
-                  }));
-                }}
-                keyboardType="number-pad"
-                placeholder="h:MM"
-                style={s.input}
-              />
+                <TextInput
+  value={
+    draftTimes[m]?.end ??
+    format12(sched[m].end).slice(0, -3)
+  }
+  onChangeText={(txt) => {
+    setDraftTimes((prev) => ({
+      ...prev,
+      [m]: { ...(prev[m] || {}), end: txt },
+    }));
+  }}
+  keyboardType="number-pad"
+  placeholder="h:MM"
+  style={s.input}
+/>
               <Pressable
                 style={s.ampmBtn}
                 onPress={() => {
